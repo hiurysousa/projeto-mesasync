@@ -34,11 +34,31 @@ O projeto foi estruturado utilizando uma arquitetura robusta, segura e escaláve
 O repositório adota as boas práticas do ecossistema Django, separando o código-fonte de configurações locais de ambiente:
 
 ```text
-├── .gitignore           # Filtro para impedir o envio de arquivos locais (.venv, db.sqlite3, caches)
-├── README.md            # Documentação principal do projeto
-├── requirements.txt     # Dependências e bibliotecas do ecossistema Python utilizadas
-├── .venv/               # Ambiente virtual isolado (ignorado pelo Git)
-└── src/                 # Diretório raiz do código-fonte Django
-    ├── manage.py        # Utilitário de linha de comando do Django
-    ├── core/            # Módulo central de configurações do projeto (settings, urls)
-    └── restaurante/     # App principal (Regras de negócio: mesas, categorias, produtos e pedidos)
+📂 mesasync/                              # Diretório raiz do repositório
+├── .gitignore                           # Filtro do Git para ignorar arquivos locais (.venv, db.sqlite3)
+├── README.md                            # Documentação principal e guia de execução do projeto
+├── requirements.txt                     # Lista de dependências do ecossistema Python (Django, Pillow, etc.)
+├── .venv/                               # Ambiente virtual isolado com as bibliotecas instaladas
+│
+└── 📂 src/                              # Diretório raiz do código-fonte do projeto Django
+    ├── manage.py                        # Utilitário de linha de comando para gerenciamento do Django
+    │
+    ├── 📂 core/                         # Módulo central de configurações globais do projeto
+    │   ├── __init__.py
+    │   ├── settings.py                  # Definições de segurança, apps instalados e caminhos de mídia
+    │   ├── urls.py                      # Roteamento global (mapeia o admin e inclui o app restaurante)
+    │   └── wsgi.py / asgi.py            # Interfaces de servidores web para implantação (deploy)
+    │
+    └── 📂 restaurante/                  # Aplicativo funcional (Regras de negócio do MesaSync)
+        ├── 📂 migrations/               # Histórico de evolução e estruturação do banco de dados
+        │
+        ├── 📂 templates/                # Diretório de arquivos de visualização (Front-end)
+        │   └── 📂 cliente/
+        │       └── mesasync_cardapio.html # Interface mobile-first do cardápio digital do cliente
+        │
+        ├── admin.py                     # Registro das models para exibição no painel Django Admin
+        ├── apps.py                      # Configurações estruturais do aplicativo restaurante
+        ├── models.py                    # Esquema de banco de dados (Estabelecimento, Mesa, Categoria, Produto, Pedido)
+        ├── tests.py                     # Scripts dedicados a testes automatizados unitários e de integração
+        ├── urls.py                      # Rotas internas do app (Ex: tratamento do QR Code e envio de pedidos)
+        └── views.py                     # Lógica de controle (Intermediação entre o banco de dados e o HTML)
