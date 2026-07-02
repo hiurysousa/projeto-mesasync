@@ -61,6 +61,9 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 
+# MesaSync: uploads dos usuários (fotos de produtos etc.) não devem ir pro repo
+media/
+
 # Flask stuff:
 instance/
 .webassets-cache
