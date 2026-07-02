@@ -10,4 +10,5 @@ urlpatterns = [
     # --- Rotas de Gerenciamento da Barraca / Cozinha ---
     path('painel/<uuid:estabelecimento_id>/', views.painel_pedidos, name='painel_pedidos'),
     path('pedido/<int:pedido_id>/atualizar-status/', views.atualizar_status_pedido, name='atualizar_status_pedido'),
+    path('admin-dashboard/', views.admin_dashboard_view, name='admin_dashboard')
 ]

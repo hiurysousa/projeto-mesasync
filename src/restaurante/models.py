@@ -1,6 +1,6 @@
 import uuid
 from django.db import models
-
+from django.utils import timezone
 
 class Estabelecimento(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -91,3 +91,39 @@ class ItemPedido(models.Model):
 
     def __str__(self):
         return f'{self.quantidade}x {self.produto.nome}'
+    
+class TransacaoHistorica(models.Model):
+    FORMA_PAGAMENTO_CHOICES = [
+        ('PIX', 'Pix'),
+        ('CARTAO_CREDITO', 'Cartão de Crédito'),
+        ('CARTAO_DEBITO', 'Cartão de Débito'),
+        ('DINHEIRO', 'Dinheiro'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    estabelecimento = models.ForeignKey('Estabelecimento', on_delete=models.CASCADE, related_name='transacoes')
+    numero_mesa = models.PositiveIntegerField() # Guardamos o número direto para histórico caso a mesa física mude futuramente
+    data_finalizacao = models.DateTimeField(default=timezone.now) # Crucial para séries temporais e predições
+    forma_pagamento = models.CharField(max_length=20, choices=FORMA_PAGAMENTO_CHOICES)
+    valor_total = models.DecimalField(max_length=10, decimal_places=2, max_digits=10)
+
+    def __str__(self):
+        return f"Transação {self.id} — Mesa {self.numero_mesa} ({self.data_finalizacao.strftime('%d/%m/%Y %H:%M')})"
+
+    class Meta:
+        ordering = ['-data_finalizacao']
+
+
+class ItemTransacaoHistorico(models.Model):
+    """
+    Registra a 'fotografia' do produto no momento exato da compra. 
+    Isso impede que mudanças de preço ou exclusões de produtos estraguem os dados do Dashboard/Data Science.
+    """
+    transacao = models.ForeignKey(TransacaoHistorica, on_delete=models.CASCADE, related_name='itens')
+    produto_nome = models.CharField(max_length=255) # Nome texto para histórico persistente
+    categoria_nome = models.CharField(max_length=150, blank=True, null=True) # Útil para IA predizer qual categoria vende mais em feriados
+    quantidade = models.PositiveIntegerField()
+    preco_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.quantidade}x {self.produto_nome} na Transação {self.transacao.id}"

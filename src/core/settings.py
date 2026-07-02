@@ -28,6 +28,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Certifique-se de que a URL base está definida
+STATIC_URL = 'static/'
+
+# ESTA É A LINHA QUE FALTAVA: Diz ao Django para procurar arquivos estáticos dentro dos apps
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
 
 # Application definition
 

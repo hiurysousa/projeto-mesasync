@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MesaSync - Dashboard Administrativo</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background: linear-gradient(160deg, #0b2f6b 0%, #14489f 45%, #1e63d9 100%);
+            min-height: 100vh;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.96);
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-2xl sm:text-3xl font-bold text-white mb-6 sm:mb-8">
+            Painel Analítico MesaSync 📊
+        </h1>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+            <div class="glass p-5 sm:p-6 rounded-lg shadow-lg border-l-4 border-green-500">
+                <p class="text-xs sm:text-sm text-gray-500 uppercase font-semibold">Faturamento Total</p>
+                <p class="text-xl sm:text-2xl font-bold text-gray-800">R$ {{ faturamento_total }}</p>
+            </div>
+            <div class="glass p-5 sm:p-6 rounded-lg shadow-lg border-l-4 border-blue-500">
+                <p class="text-xs sm:text-sm text-gray-500 uppercase font-semibold">Mesas Finalizadas</p>
+                <p class="text-xl sm:text-2xl font-bold text-gray-800">{{ total_atendimentos }} atendimentos</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div class="glass p-5 sm:p-6 rounded-lg shadow-lg lg:col-span-1">
+                <h2 class="text-base sm:text-lg font-semibold mb-4 text-gray-700">Métodos de Pagamento</h2>
+                <div class="max-w-xs mx-auto">
+                    <canvas id="pagamentosChart"></canvas>
+                </div>
+            </div>
+
+            <div class="glass p-5 sm:p-6 rounded-lg shadow-lg lg:col-span-2">
+                <h2 class="text-base sm:text-lg font-semibold mb-4 text-gray-700">Últimas Transações</h2>
+                <div class="overflow-x-auto -mx-2 sm:mx-0">
+                    <table class="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-2 sm:px-4 py-2 text-left font-medium text-gray-500">ID</th>
+                                <th class="px-2 sm:px-4 py-2 text-left font-medium text-gray-500">Mesa</th>
+                                <th class="px-2 sm:px-4 py-2 text-left font-medium text-gray-500">Forma Pag.</th>
+                                <th class="px-2 sm:px-4 py-2 text-left font-medium text-gray-500">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            {% for t in transacoes %}
+                            <tr>
+                                <td class="px-2 sm:px-4 py-2 whitespace-nowrap font-bold text-blue-600">#{{ t.id|truncatechars:8 }}</td>
+                                <td class="px-2 sm:px-4 py-2 whitespace-nowrap">Mesa {{ t.numero_mesa }}</td>
+                                <td class="px-2 sm:px-4 py-2 whitespace-nowrap">{{ t.get_forma_pagamento_display }}</td>
+                                <td class="px-2 sm:px-4 py-2 whitespace-nowrap font-semibold text-green-600">R$ {{ t.valor_total }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="px-4 py-4 text-center text-gray-400">Nenhuma transação registrada ainda.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('pagamentosChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ grafico_labels|safe }},
+                datasets: [{
+                    data: {{ grafico_dados|safe }},
+                    backgroundColor: ['#10B981', '#F59E0B', '#3B82F6']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

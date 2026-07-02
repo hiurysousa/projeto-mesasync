@@ -5,8 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <meta name="theme-color" content="#1e63d9" />
-  <title>MesaSync — {{ estabelecimento.nome|default:"Barraca" }} · Mesa {{ mesa.numero }}</title>
-  <link rel="icon" href="{% static 'mesasync/logo.png' %}" />
+  <title>MesaSync — {{ estabelecimento.nome|default:"Barraca" }} · Mesa {{ mesa.numero_mesa }}</title>
+  <link rel="icon" href="{% static 'cliente/logo_branca.png' %}" />
   <style>
     /* ===== MesaSync · Design tokens (customizáveis por marca) ===== */
     :root {
@@ -56,7 +56,7 @@
       width: 48px; height: 48px; border-radius: 14px; background: #fff;
       display: grid; place-items: center; flex-shrink: 0;
     }
-    .logo img { width: 36px; height: 36px; }
+    .logo img { width: 36px; height: 36px; object-fit: contain; }
     .brand { flex: 1; min-width: 0; }
     .brand small { display: block; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; opacity: .8; }
     .brand h1 { margin: 0; font-size: 20px; font-weight: 800; line-height: 1.1; }
@@ -194,17 +194,16 @@
   </style>
 </head>
 <body>
-  <!-- ============ HEADER ============ -->
   <header class="topbar">
     <div class="topbar-inner wrap">
       <div class="logo">
-        <img src="{% static 'mesasync/logo.png' %}" alt="MesaSync" />
+        <img src="{% static 'cliente/logo_branca.png' %}" alt="MesaSync" />
       </div>
       <div class="brand">
         <small>{{ estabelecimento.nome|default:"Barraca do Tito" }}</small>
         <h1>MesaSync</h1>
       </div>
-      <span class="mesa-chip">📍 Mesa {{ mesa.numero|stringformat:"02d" }}</span>
+      <span class="mesa-chip">📍 Mesa {{ mesa.numero_mesa|stringformat:"02d" }}</span>
     </div>
     <nav class="cats wrap" aria-label="Categorias">
       {% for categoria in categorias %}
@@ -216,7 +215,6 @@
     </nav>
   </header>
 
-  <!-- ============ MENU ============ -->
   <main class="wrap">
     {% for categoria in categorias %}
       <section class="cat-section" id="cat-{{ categoria.id }}" data-cat="cat-{{ categoria.id }}">
@@ -248,9 +246,8 @@
         {% endfor %}
       </section>
     {% endfor %}
-</main>
+  </main>
 
-  <!-- ============ CART BAR ============ -->
   <div class="cart-bar" id="cartBar">
     <div class="cart-bar-inner" id="openDrawer">
       <div class="cart-bar-left">
@@ -261,7 +258,6 @@
     </div>
   </div>
 
-  <!-- ============ DRAWER ============ -->
   <div class="backdrop" id="backdrop"></div>
   <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Seu pedido">
     <div class="drawer-head">
@@ -280,9 +276,9 @@
 
       <p class="field-label">Forma de Pagamento</p>
       <div class="pay-grid">
-        <div><input type="radio" id="pay-pix" name="pagamento" value="Pix" checked /><label for="pay-pix">Pix</label></div>
-        <div><input type="radio" id="pay-dinheiro" name="pagamento" value="Dinheiro" /><label for="pay-dinheiro">Dinheiro</label></div>
-        <div><input type="radio" id="pay-cartao" name="pagamento" value="Cartão" /><label for="pay-cartao">Cartão</label></div>
+        <div><input type="radio" id="pay-pix" name="pagamento" value="pix" checked /><label for="pay-pix">Pix</label></div>
+        <div><input type="radio" id="pay-dinheiro" name="pagamento" value="dinheiro" /><label for="pay-dinheiro">Dinheiro</label></div>
+        <div><input type="radio" id="pay-cartao" name="pagamento" value="cartao" /><label for="pay-cartao">Cartão</label></div>
       </div>
     </div>
 
@@ -300,9 +296,9 @@
      MesaSync — Lógica do Carrinho (Vanilla JS)
      ===================================================================== */
   (function () {
-    const MESA_NUMERO = {{ mesa.numero|default:0 }};
-    const API_URL = "{% url 'criar_pedido_ajax' mesa_id=mesa.id %}"; // ajuste conforme suas rotas
-    const cart = new Map(); // id -> { id, nome, preco, img, qty }
+    const MESA_NUMERO = {{ mesa.numero_mesa|default:0 }};
+    const API_URL = "{% url 'criar_pedido_ajax' mesa_id=mesa.id %}";
+    const cart = new Map();
 
     const $ = (s) => document.querySelector(s);
     const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
